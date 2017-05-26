@@ -1,7 +1,7 @@
 function [ result ] = plotAllCols( inArray, xDataColumn, varargin )
 % plotAllCols Plot all columns of data
 %   Plot all columns of [inArray], with the x column specified by
-%   [xDataColumn].
+%   [xDataColumn]. Optional arguments available through varargin.
 %
 % Required inputs:
 % INARRAY = data to be plotted
@@ -10,7 +10,7 @@ function [ result ] = plotAllCols( inArray, xDataColumn, varargin )
 % Optional inputs (positional):
 % SUBTRACTMEAN = subtract mean from data prior to plotting
 %
-% Optional Parameters (not positional, specified by identifying string):
+% Optional Parameters (not positional, specified by an identifying string):
 % COLORS = what colors to plot with. Row in an array (char, or 1x3 numeric
 % for each column
 % STYLE = style of symbol you want plotted. Ex: '-' for line, '--' broken
