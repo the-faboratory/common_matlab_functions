@@ -1,5 +1,5 @@
 function [ data expFilteredData ] = importAndPlot( folder, sensLength, expConst, xMin, xMax )
-%IMPORTANDPLOT import data from an excel file and plot that data.
+% IMPORTANDPLOT import data from an excel file and plot that data.
 %   Note: As of 2017-5-10, this hard-coded excel reading range, and several
 %   plot parameters. UNFINISHED.
 %   This script graphs data columns against an "x" column, such as time.

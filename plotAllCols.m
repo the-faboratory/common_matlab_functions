@@ -43,7 +43,7 @@ if p.Results.subtractMean
     inArray(:,xDataColumn) = time;
 end
 
-% Plot
+% Plot all columns. Use colors as specified in "if size..." block, above
 nPlot = 1;
 for ii = 1:size(inArray,2)
     if ii ~= xDataColumn
