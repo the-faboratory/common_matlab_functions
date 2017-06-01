@@ -35,6 +35,7 @@ addRequired(p, 'inBinLower', @isnumeric)
 addRequired(p, 'binInc', @isnumeric)
 addRequired(p, 'inBinUpper', @isnumeric)
 addOptional(p, 'initialRow', 1, @isnumeric)
+addOptional(p, 'subtractInitial', true, @islogical)
 
 
 defaultColor = false; % If color not specified, let MATLAB decide a default color
@@ -112,6 +113,8 @@ boundsF(2, :) = binStatistics(:, 1) - binStatistics(:, 3); % mean-95%CI
 [xPatches, yPatches] = getPatches(boundsF(1, :),boundsF(2, :),binMeans);
 
 % Plot the cloud
+% offsetPlotClouds = sensorData(p.Results.initialRow) % For debugging
+if(p.Results.subtractInitial)
     patch(xPatches, p.Results.yConstant*(yPatches - sensorData(p.Results.initialRow)), p.Results.color, 'FaceAlpha', 0.35, 'edgeColor', 'none');
     plot(binMeans, p.Results.yConstant*(binStatistics(:, 1) - sensorData(p.Results.initialRow)), '--', 'Color', p.Results.color, 'LineWidth', 2.0, 'DisplayName', 'Mean');
 else
