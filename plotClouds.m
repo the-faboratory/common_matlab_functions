@@ -12,13 +12,14 @@ function [  ] = plotClouds( cellArrayOfData, xColumn, yColumn, inBinLower, binIn
 %   inBinUpper - upper bound of your x data
 %
 %   Optional inputs:
-%
+%   initialRow - first row that you want plotted. Deafult = 1
+%   subtractInitial - should we subtract the initial value for a given
+%   column from all data in that column? Default = FALSE
+%   cloudsFirst - plot clouds before plotting the mean. Default = TRUE
+%   showCloudInLegend - should we show the cloud in the legend (calling
+%   function/script must create the legend). Default = FALSE
+% 
 %   Outputs:
-%   xPatches, yPatches - complete coordinates for your cloud.
-%   binMeans - monotonically-increasing x-values for your cloud (means of
-%   actual points in the bins, rather than the mean of the bin)
-%   binStatistics - statistics for your coordinates (mean, standard
-%   deviation, 95% confidence interval.
 
 %   Original source code written by Edward White. Significantly modified by
 %   Dylan Shah, most recently on 2017-05-29 YMD.
@@ -36,7 +37,8 @@ addRequired(p, 'binInc', @isnumeric)
 addRequired(p, 'inBinUpper', @isnumeric)
 addOptional(p, 'initialRow', 1, @isnumeric)
 addOptional(p, 'subtractInitial', true, @islogical)
-
+addOptional(p, 'cloudsFirst', true, @islogical)
+addOptional(p, 'showCloudInLegend', false, @islogical)
 
 defaultColor = false; % If color not specified, let MATLAB decide a default color
 isCharOrNumeric = @(x) ischar(x) + isnumeric(x);
@@ -97,12 +99,13 @@ for b = 1:nBinsM1
     % If the bin has valid elements, then compute statistics
     binStatistics(validRow, 1) = mean(binsOfData{b}(:, yColumn));
     binStatistics(validRow, 2) = std(binsOfData{b}(:, yColumn));
-    %    FF(b,3) = tinv(0.975,binCount-1)*FF(b,2);   % 95%CI
-    binStatistics(validRow, 3) = 2.26*binStatistics(validRow, 2);   % 95%CI % HARDCODED
+    tStatistic = tinv(0.975,binCount(b)-1); % 95%CI t-statistic
+    %     tStatistic = 2.26; % 95%CI t-statistic % HARDCODED
+    binStatistics(validRow,3) = tStatistic*binStatistics(validRow,2);   % 95%CI
     binMeans(validRow) = mean(binsOfData{b}(:, xColumn));
     validRow = validRow + 1;
 end
-meanBinCount = mean(binCount) % Print mean number of elements in the bins
+meanBinCount = mean(binCount); % Print mean number of elements in the bins. Keep for debugging
 binMeans = binMeans(1:validRow - 1); % (Implementation note: validRow starts at 1, and is incremented by one every time.)
 
 
@@ -115,12 +118,24 @@ boundsF(2, :) = binStatistics(:, 1) - binStatistics(:, 3); % mean-95%CI
 % Plot the cloud
 % offsetPlotClouds = sensorData(p.Results.initialRow) % For debugging
 if(p.Results.subtractInitial)
-    patch(xPatches, p.Results.yConstant*(yPatches - sensorData(p.Results.initialRow)), p.Results.color, 'FaceAlpha', 0.35, 'edgeColor', 'none');
-    plot(binMeans, p.Results.yConstant*(binStatistics(:, 1) - sensorData(p.Results.initialRow)), '--', 'Color', p.Results.color, 'LineWidth', 2.0, 'DisplayName', 'Mean');
+    yPatches = yPatches - sensorData(p.Results.initialRow);
+    binStatistics(:, 1) = binStatistics(:, 1) - sensorData(p.Results.initialRow);
+    %     patch(xPatches, p.Results.yConstant*(yPatches - sensorData(p.Results.initialRow)), p.Results.color, 'FaceAlpha', 0.35, 'edgeColor', 'none');
+    %     plot(binMeans, p.Results.yConstant*(binStatistics(:, 1) - sensorData(p.Results.initialRow)), '--', 'Color', p.Results.color, 'LineWidth', 2.0, 'DisplayName', 'Mean');
 else
-    patch(xPatches, p.Results.yConstant*(yPatches), p.Results.color, 'FaceAlpha', 0.35, 'edgeColor', 'none');
-    plot(binMeans, p.Results.yConstant*(binStatistics(:, 1)), '--', 'Color', p.Results.color, 'LineWidth', 2.0, 'DisplayName', 'Mean');
-    
+    % Do Nothing
+end
+
+if p.Results.cloudsFirst
+    cloud = patch(xPatches, p.Results.yConstant*(yPatches), p.Results.color, 'FaceAlpha', 0.35, 'edgeColor', 'none');
+    line = plot(binMeans, p.Results.yConstant*(binStatistics(:, 1)), '--', 'Color', p.Results.color, 'LineWidth', 2.0, 'DisplayName', 'Mean');
+else
+    line = plot(binMeans, p.Results.yConstant*(binStatistics(:, 1)), '--', 'Color', p.Results.color, 'LineWidth', 2.0, 'DisplayName', 'Mean');
+    cloud = patch(xPatches, p.Results.yConstant*(yPatches), p.Results.color, 'FaceAlpha', 0.35, 'edgeColor', 'none');
+end
+if ~p.Results.showCloudInLegend
+    set(get(get(cloud,'Annotation'),'LegendInformation'),...
+        'IconDisplayStyle','off'); % Exclude line from legend
 end
 end
 
