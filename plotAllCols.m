@@ -15,6 +15,7 @@ function [ result ] = plotAllCols( inArray, xDataColumn, varargin )
 % for each column
 % STYLE = style of symbol you want plotted. Ex: '-' for line, '--' broken
 % line
+% COLUMNS = what columns to plot
 
 % Function parser described here https://www.mathworks.com/help/matlab/matlab_prog/parse-function-inputs.html
 % In brief: add[type](inputParser,name,check function)
@@ -22,6 +23,7 @@ p = inputParser;
 addRequired(p,'inArray',@isnumeric)
 addRequired(p,'xDataColumn',@isnumeric)
 addOptional(p,'subtractMean',true,@islogical)
+addOptional(p,'columns',1:size(inArray,2),@isnumeric)
 
 % If we know there are four sensor reading columns, assign default colors
 if size(inArray,2) == 5
@@ -45,7 +47,7 @@ end
 
 % Plot all columns. Use colors as specified in "if size..." block, above
 nPlot = 1;
-for ii = 1:size(inArray,2)
+for ii = p.Results.columns
     if ii ~= xDataColumn
         if islogical(p.Results.colors)
             % If no color was specified, and array doesn't have five
