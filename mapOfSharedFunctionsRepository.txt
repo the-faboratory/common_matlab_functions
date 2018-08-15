@@ -1,0 +1,11 @@
+Preliminary Notes:
+
+Function | Calls these functions
+DataAnalysis | getPatches
+expFilter |
+getPatches |
+importAndPlot | importFromArduino, plotAllCols  STOPPED DOCUMENTING HERE 5-26
+importData |
+importFromArduino |
+onlyIncreasing |
+plotAllCols |
