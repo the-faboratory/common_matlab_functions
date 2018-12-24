@@ -1,4 +1,4 @@
-function [ increasingCell ] = onlyIncreasing( cellArrayOfData, xDataColumn, varargin )
+function [ increasingArray ] = onlyIncreasing( arrayOfData, xDataColumn, varargin )
 % ONLYINCREASING remove decreasing data points.
 %   [ increasingCell ] = ONLYINCREASING( cellArrayOfData, column, skipFirst
 %   ) Remove decreasing data points (rows of data) of [cellArrayOfData],
@@ -23,14 +23,14 @@ function [ increasingCell ] = onlyIncreasing( cellArrayOfData, xDataColumn, vara
 % Function parser described here https://www.mathworks.com/help/matlab/matlab_prog/parse-function-inputs.html
 % In brief: add[type](inputParser,name,check function)
 p = inputParser;
-addRequired(p, 'cellArrayOfData', @iscell)
+addRequired(p, 'arrayOfData', @isnumeric)
 addRequired(p, 'xDataColumn', @isnumeric)
 addParameter(p, 'skipFirst', false, @islogical)
+addParameter(p, 'onlyFirstCycle', false, @islogical)
 
-parse(p, cellArrayOfData, xDataColumn, varargin{:})
+parse(p, arrayOfData, xDataColumn, varargin{:})
 
 validRow = 1;
-arrayOfData = cellArrayOfData{1, 1};
 increasingArray(1, :) = arrayOfData(1, :);
 first = true; % Don't add first monotonically increasing data chunk if skipFirst flag is set
 
@@ -44,6 +44,7 @@ for row = 2: size(arrayOfData,1)
         % flag is set)
     elseif arrayOfData(row, xDataColumn) < arrayOfData(row-1, xDataColumn)
         first = false;
+    elseif arrayOfData(row, xDataColumn) < arrayOfData(row-1, xDataColumn) && p.Results.onlyFirstCycle
+        break; % Stop once we are decreasing
     end
 end
-increasingCell = {increasingArray};
