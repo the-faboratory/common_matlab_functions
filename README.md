@@ -1,4 +1,4 @@
-# SharedFunctions
+# CommonMatlabFunctions
 ## Summary
 This repository contains general-purpose MATLAB functions. They are generally for reading from excel 
 documents and/or plotting. Its commit history
