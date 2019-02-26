@@ -9,40 +9,40 @@ function [ result ] = plotAllCols( inArray, xDataColumn, varargin )
 %
 % Optional inputs (positional):
 % SUBTRACTMEAN = subtract mean from data prior to plotting
+% COLUMNS = what columns to plot
 %
 % Optional Parameters (not positional, specified by an identifying string):
 % COLORS = what colors to plot with. Row in an array (char, or 1x3 numeric
 % for each column
 % STYLE = style of symbol you want plotted. Ex: '-' for line, '--' broken
 % line
-% COLUMNS = what columns to plot
 
-% Function parser described here https://www.mathworks.com/help/matlab/matlab_prog/parse-function-inputs.html
+% Function parser https://www.mathworks.com/help/matlab/matlab_prog/parse-function-inputs.html
 % In brief: add[type](inputParser,name,check function)
 p = inputParser;
-addRequired(p,'inArray',@isnumeric)
-addRequired(p,'xDataColumn',@isnumeric)
-addOptional(p,'subtractMean',true,@islogical)
-addOptional(p,'columns',1:size(inArray,2),@isnumeric)
+addRequired(p, 'inArray', @isnumeric)
+addRequired(p, 'xDataColumn', @isnumeric)
+addOptional(p, 'subtractMean', true, @islogical)
+addOptional(p, 'columns', 1:size(inArray,2), @isnumeric)
 
 % If we know there are four sensor reading columns, assign default colors
 if size(inArray,2) == 5
-    defaultColors = ['r';'g';'b';'k'];
+    defaultColors = ['r'; 'g'; 'b'; 'k'];
 else
     defaultColors = false; % Else, let MATLAB decide a default color
 end
 isCharOrNumeric = @(x) ischar(x) + isnumeric(x);
-addParameter(p,'colors',defaultColors,isCharOrNumeric)
-addParameter(p,'style','-',@ischar)
+addParameter(p, 'colors', defaultColors, isCharOrNumeric)
+addParameter(p, 'style','-', @ischar)
 
 parse(p,inArray, xDataColumn, varargin{:})
 
 hold on
 % Subtract mean
 if p.Results.subtractMean
-    time = inArray(:,xDataColumn);
-    inArray = inArray - repmat(mean(inArray),size(inArray,1),1);;
-    inArray(:,xDataColumn) = time;
+    time = inArray(:, xDataColumn);
+    inArray = inArray - repmat(mean(inArray), size(inArray, 1), 1);;
+    inArray(:, xDataColumn) = time;
 end
 
 % Plot all columns. Use colors as specified in "if size..." block, above
@@ -52,10 +52,10 @@ for ii = p.Results.columns
         if islogical(p.Results.colors)
             % If no color was specified, and array doesn't have five
             % columns, let MATLAB decide color
-            plot(inArray(:,xDataColumn), inArray(:,ii),p.Results.style);
+            plot(inArray(:, xDataColumn), inArray(:, ii), p.Results.style);
         else
             % If color was specified by user and/or MATLAB, use it!
-            plot(inArray(:,xDataColumn), inArray(:,ii),p.Results.style,'Color',p.Results.colors(nPlot,:));
+            plot(inArray(:, xDataColumn), inArray(:, ii), p.Results.style, 'Color', p.Results.colors(nPlot, :));
         end
         nPlot = nPlot + 1;
     end

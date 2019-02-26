@@ -1,18 +1,18 @@
 function [ increasingArray ] = onlyIncreasing( arrayOfData, xDataColumn, varargin )
 % ONLYINCREASING remove decreasing data points.
-%   [ increasingCell ] = ONLYINCREASING( cellArrayOfData, column, skipFirst
+%   [ increasingArray ] = ONLYINCREASING( cellArrayOfData, column, skipFirst
 %   ) Remove decreasing data points (rows of data) of [cellArrayOfData],
 %   according to whether data in column [xDataColumn] were decreasing.
 %
 %   Required inputs:
-%   CELLARRAYOFDATA = cell array with the input data.
-%   XDATACOLUMN = column to be examined for increasing between rows.
+%   arrayOfData = cell array with the input data.
+%   xDataColumn = column to be examined for increasing between rows.
 %
 %   Optional inputs  (positional):
 %   N/A
 %
 %   Optional Parameters (not positional, specified by an identifying string):
-%   SKIPFIRST = whether or not to skip the first monotonically increasing
+%   skipFirst = whether or not to skip the first monotonically increasing
 %   (strain) data chunk.
 
 % TODO:

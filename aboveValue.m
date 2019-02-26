@@ -1,24 +1,20 @@
 function [ aboveArray ] = aboveValue( arrayOfData, xDataColumn, minimumXValue, varargin )
 % aboveValue remove decreasing data points.
-%   [ aboveCell ] = aboveValue( cellArrayOfData, column, skipFirst
-%   ) Remove decreasing data points (rows of data) of [cellArrayOfData],
-%   according to whether data in column [xDataColumn] were decreasing.
+%   [ aboveArray ] = aboveValue( arrayOfData, xDataColumn, minimumXValue, varargin
+%   ) Remove decreasing data points (rows of data) of [arrayOfData],
+%   according to whether data in column [xDataColumn] were decreasing. Useful for removing
+%   return-to-zero curves on strain tests
 %
 %   Required inputs:
-%   CELLARRAYOFDATA = cell array with the input data.
-%   XDATACOLUMN = column to be examined for increasing between rows.
+%   arrayOfData = array with the input data.
+%   xDataColumn = column to be examined for increasing between rows.
+%   minimumXValue = minimum acceptable x value (typically 0)
 %
 %   Optional inputs  (positional):
 %   N/A
 %
 %   Optional Parameters (not positional, specified by an identifying string):
-%   SKIPFIRST = whether or not to skip the first monotonically increasing
-%   (strain) data chunk.
-
-% TODO:
-% 1. (Low priority) Check whether cellArray is a cell or an array. Act
-% accordingly. Related: maybe temp is unnecessary
-% 2. (Low priority) Expand to allow multiple cell and/or array inputs
+%   truncateWithNaNs = Replace zero rows with NaN. I don't know why this was added
 
 % Function parser described here https://www.mathworks.com/help/matlab/matlab_prog/parse-function-inputs.html
 % In brief: add[type](inputParser,name,check function)
@@ -45,4 +41,4 @@ if p.Results.truncateWithNaNs
     aboveArray(aboveArray == 0) = nan;
 end
 
-% aboveArray( ~any(aboveArray,2), : ) = [];  % delete zero rows. Not needed
+% aboveArray( ~any(aboveArray,2), : ) = [];  % delete zero rows. Optional

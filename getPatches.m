@@ -1,7 +1,7 @@
-function [ completeXValues,completeYValues ] = getPatches( topYValues, bottomYValues, xValues )
+function [ completeXValues, completeYValues ] = getPatches( topYValues, bottomYValues, xValues )
 % GETPATCHES Gets a sequence of vertices to outline the input points, which 
-% are typically confidence intervals of bins for plotting "clouds".
-%   [ completeXValues, completeYValues ] = GETPATCHES( topYValues,
+% are typically confidence intervals of bins for plotting "clouds". Called by plotClouds.
+%   [ completeXValues, completeYValues ] = getPatches( topYValues,
 %   bottomYValues, xValues ) Gets a sequence of vertices to outline the
 %   input points defined by the three inputs, (topYValues, bottomYValues,
 %   and xValues) - which  are typically confidence intervals of bins for 
@@ -24,9 +24,6 @@ function [ completeXValues,completeYValues ] = getPatches( topYValues, bottomYVa
 %
 %   Outputs:
 %   COMPLETEXVALUES, COMPLETEYVALUES - complete coordinates for your cloud.
-
-% TODO: 
-% 1. (Low Priority) Preallocate arrays reverseXValues and reverseBottomY
 
 % Check that all inputs were vectors.
 if ~isvector(topYValues)
