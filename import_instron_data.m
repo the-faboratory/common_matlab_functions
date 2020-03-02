@@ -1,12 +1,14 @@
 function [ data_cells ] = import_instron_data( folder, file_prefix, file_suffixes, varargin )
 % import_instron_data: import instron data
-%   [ increasing_array ] = import_instron_data( cellArrayOfData, column, skip_first
-%   ) Import data files located in a given folder, with a filename pattern of
+%   [ data_cells ] = import_instron_data( folder, file_prefix, file_suffixes, varargin )
+%   Import data files located in a given folder, with a filename pattern of
 %   "[file_prefix][file_suffix].csv"
 %
 %   Required inputs:
-%   array_of_data = cell array with the input data.
-%   x_data_column = column to be examined for increasing between rows.
+%   folder = folder containing your data
+%   file_prefix = prefix that is common to each file
+%   file_suffixes = suffix for each individual file name. Assumed they're
+%   given as cells of strings
 %
 %   Optional inputs  (positional):
 %   N/A
@@ -28,6 +30,7 @@ addRequired(p, 'file_suffixes', @ischar)
 data_cells = cell(length(file_suffixes), 1);
 cell_index = 1;
 for file = file_suffixes
-    data_cells{cell_index}(:, :) = xlsread([folder file_prefix int2str(file) '.csv']);
+    file = file{1}
+    data_cells{cell_index}(:, :) = xlsread([folder file_prefix file '.csv']);
     cell_index = cell_index + 1;
 end

@@ -1,4 +1,4 @@
-function [ data_above_minimum ] = above_value( in_data, x_data_column, minimum_x_value, varargin )
+function [ data_above_minimum ] = above_value( in_data, x_data_column, minimum_x_value, columns_to_zero, varargin )
 % above_value remove all data that is below a minimum value.
 %   [ data_above_minimum ] = above_value( in_data, x_data_column, minimum_x_value, varargin
 %   ). Zero-out all data that is below a minimum value
@@ -12,7 +12,7 @@ function [ data_above_minimum ] = above_value( in_data, x_data_column, minimum_x
 %   N/A
 %
 %   Optional Parameters (not positional, specified by an identifying string):
-%   truncateWithNaNs = Replace zero rows with NaN. I don't know why this was added
+%   truncateWithNaNs = Replace zero rows with NaN, to keep output array same dimensions as input arry.
 
 % Function parser described here https://www.mathworks.com/help/matlab/matlab_prog/parse-function-inputs.html
 % In brief: add[type](inputParser,name,check function)
@@ -23,7 +23,7 @@ addRequired(p, 'minimum_x_value', @isnumeric)
 addRequired(p, 'columns_to_zero', @isnumeric)
 addParameter(p, 'truncateWithNaNs', false, @islogical)
 
-parse(p, in_data, x_data_column, minimum_x_value, varargin{:})
+parse(p, in_data, x_data_column, minimum_x_value, columns_to_zero, varargin{:})
 
 
 if iscell(in_data)
@@ -68,6 +68,7 @@ elseif isnumeric(in_data)
         data_above_minimum(data_above_minimum == 0) = nan;
     end
     data_above_minimum( ~any(data_above_minimum,2), : ) = [];  % delete zero rows. Optional
+    data_above_minimum(:, p.Results.columns_to_zero) = data_above_minimum(:, p.Results.columns_to_zero) - data_above_minimum(1, p.Results.columns_to_zero); % Zero the appropriate columns
 else
     error("above_value expected numeric data, got non-numeric in_data.")
 end

@@ -1,47 +1,49 @@
-function [ line ] = plotClouds( in_cell_array_of_data, x_column, y_column, lower_bound_x, bin_width_x, upper_bound_x, varargin )
+function [ line ] = plot_clouds( cell_array_of_data, x_column, y_column, lower_bound_x, bin_width_x, upper_bound_x, varargin )
 % DATAANALYSIS Plot clouds (confidence intervals.)
-%   [ line ] = PLOTCLOUDS(
-%   in_cell_array_of_data, xCol, yCol, lower_bound_x, bin_width_x, upper_bound_x ) generates
+%   [ line ] = plot_clouds(
+%   cell_array_of_data, xCol, yCol, lower_bound_x, bin_width_x, upper_bound_x ) generates
 %   information for the patches that can be plotted as clouds. Warning: will truncate negative response
 %   (sensor, stress, etc.) confidence values to 0.01
 %
 %   Required Inputs:
-%   in_cell_array_of_data = cell array with your data,
+%   cell_array_of_data = cell array with your data,
 %   xCol, yCol = column number containing x,y data,
 %   lower_bound_x = Lower bound of your x data
 %   bin_width_x = width of each bin
 %   upper_bound_x = upper bound of your x data
 %
 %   Optional inputs:
-%   initialRow = first row that you want plotted. Deafult = 1
-%   pValue = what percent of the data lies to the right of your confidence
-%   interval's left bound. Ex.: 95% CI has pValue = 0.975. Default = 0.975
-%   subtractInitial = should we subtract the initial value for a given
+%   initial_row = first row that you want plotted. Deafult = 1
+%   percent_to_right = what percent of the data lies to the right of your confidence
+%   interval's left bound. Ex.: 95% CI has percent_to_right = 0.975. Default = 0.975
+%   subtract_initial = should we subtract the initial value for a given
 %   column from all data in that column? Default = FALSE
-%   cloudsFirst = plot clouds before plotting the mean. Default = TRUE
-%   showCloudInLegend = should we show the cloud in the legend (calling
+%   clouds_first = plot clouds before plotting the mean. Default = TRUE
+%   show_cloud_in_legend = should we show the cloud in the legend (calling
 %   function/script must create the legend). Default = FALSE
 % 
 %   Outputs:
-%   line = the line which was just plotted
+%   line = the line corresponding to the mean of the data
 
 
 %% Parse Inputs
 % Function parser described here https://www.mathworks.com/help/matlab/matlab_prog/parse-function-inputs.html
 % In brief: add[type](inputParser,name,check function)
 p = inputParser;
-addRequired(p, 'in_cell_array_of_data', @iscell)
+addRequired(p, 'cell_array_of_data', @iscell)
 addRequired(p, 'x_column', @isnumeric)
 addRequired(p, 'y_column', @isnumeric)
 addRequired(p, 'lower_bound_x', @isnumeric)
 addRequired(p, 'bin_width_x', @isnumeric)
 addRequired(p, 'upper_bound_x', @isnumeric)
-addOptional(p, 'pValue', 0.975, @isnumeric)
-addOptional(p, 'initialRow', 1, @isnumeric)
-addOptional(p, 'subtractInitial', true, @islogical)
-addOptional(p, 'cloudsFirst', true, @islogical)
-addOptional(p, 'showCloudInLegend', false, @islogical)
-addOptional(p, 'plotClouds', true, @islogical)
+addOptional(p, 'percent_to_right', 0.975, @isnumeric)
+addOptional(p, 'initial_row', 1, @isnumeric)
+addOptional(p, 'subtract_initial', true, @islogical)
+addOptional(p, 'clouds_first', true, @islogical)
+addOptional(p, 'show_cloud_in_legend', false, @islogical)
+addOptional(p, 'plot_clouds', true, @islogical)
+addOptional(p, 'plot_raw', false, @islogical)
+addOptional(p, 'raw_number', 1, @isnumeric)
 
 
 default_color = false; % If color not specified, let MATLAB decide a default color
@@ -50,32 +52,40 @@ addParameter(p, 'color', default_color, is_char_or_numeric)
 addParameter(p, 'style', '-', @ischar)
 addParameter(p, 'yConstant', 1, @isnumeric)
 
-parse(p, in_cell_array_of_data, x_column, y_column, lower_bound_x, bin_width_x, upper_bound_x, varargin{:})
+parse(p, cell_array_of_data, x_column, y_column, lower_bound_x, bin_width_x, upper_bound_x, varargin{:})
+
 
 %% Sort by each sensor's data by xCol
 
-number_of_cells = size(in_cell_array_of_data,2); % Number of cells
-number_of_columns = size(in_cell_array_of_data{1},2); % Number of columns
-all_data = zeros(0,number_of_columns);   % initialize AllData array
+number_of_cells = max(size(cell_array_of_data)); % Number of cells
+% number_of_columns = size(cell_array_of_data{1},2); % Number of columns
+all_data = [];   % initialize all_data array, with unspecified size
 % Concatenate data
-for i = 1:1
-    all_data = vertcat(all_data, in_cell_array_of_data{i}(:,:));      % concatenate each sensor i
+for cell_number = 1 : number_of_cells
+    all_data = vertcat(all_data, cell_array_of_data{cell_number}(:, :));
 end
-all_data_sorted = sortrows(all_data, x_column); % sort data 
-y_data_first_cell = in_cell_array_of_data{1}(:,y_column);
+all_data_sorted = sortrows(all_data, x_column); % sort data according to x column
+y_data_first_cell = cell_array_of_data{1}(:, y_column);
+% Optionally, plot all raw data
+if(p.Results.plot_raw)
+    for temp_cell_number = 1:p.Results.raw_number
+        temp_array = cell_array_of_data{temp_cell_number};
+        plot(temp_array(:, x_column), temp_array(:, y_column), 'color', p.Results.color)
+    end
+end
 
 %% Bin x and y for all sensors
 
-bin_edges = lower_bound_x:bin_width_x:upper_bound_x;   % Define bins
+bin_edges = lower_bound_x : bin_width_x : upper_bound_x;   % Define bins
 number_of_bins = length(bin_edges);
 binned_data = cell(number_of_bins, 1);    % Initialize cell array for the bins
 k = 1; % which row in binned_data to add next row to
 b = 0; % which bin you're at
 % Loop over all bins
-for row = 1:size(all_data_sorted, 1)
+for row = 1 : size(all_data_sorted, 1)
     temp_row = all_data_sorted(row, :);
-    if b<length(bin_edges)           % Bin the data from bins (1,numBins-1)
-        if temp_row(x_column)>bin_edges(b + 1) % If current xCol value is greater than next binEdge
+    if b < length(bin_edges)           % Bin the data from bins (1,numBins-1)
+        if temp_row(x_column) > bin_edges(b + 1) % If current xCol value is greater than next binEdge
             k = 1; % Restart count
             b = b + 1;
         end
@@ -92,21 +102,21 @@ bin_means = zeros(1, number_of_bins_minus_one); % initialize other arrays
 bin_count = zeros(1, number_of_bins);
 number_of_valid_rows = 1; % counter for how many valid (containing more than 3 data points) rows we have
 
-for b = 1:number_of_bins_minus_one
-    bin_count(b) = size(binned_data{b}, 1);
+for temp_bin = 1 : number_of_bins_minus_one
+    bin_count(temp_bin) = size(binned_data{temp_bin}, 1);
     
     % If the bin is nearly empty, move on to next bin
-    if bin_count(b) < 3
-        continue % Skip rest of current cycle of this for loop
+    if bin_count(temp_bin) < 3
+        continue
     end
     
     % If the bin has valid elements, then compute statistics
-    bin_statistics(number_of_valid_rows, 1) = mean(binned_data{b}(:, y_column));
-    bin_statistics(number_of_valid_rows, 2) = std(binned_data{b}(:, y_column));
-    t_statistic = tinv(p.Results.pValue,bin_count(b)-1); % 95% CI t-statistic
+    bin_statistics(number_of_valid_rows, 1) = mean(binned_data{temp_bin}(:, y_column));
+    bin_statistics(number_of_valid_rows, 2) = std(binned_data{temp_bin}(:, y_column));
+    t_statistic = tinv(p.Results.percent_to_right, bin_count(temp_bin)-1); % 95% CI t-statistic
     %     t_statistic = 2.26; % 95% CI t-statistic % HARDCODED
-    bin_statistics(number_of_valid_rows,3) = t_statistic*bin_statistics(number_of_valid_rows,2);   % 95%CI
-    bin_means(number_of_valid_rows) = mean(binned_data{b}(:, x_column));
+    bin_statistics(number_of_valid_rows, 3) = t_statistic*bin_statistics(number_of_valid_rows, 2);   % 95%CI
+    bin_means(number_of_valid_rows) = mean(binned_data{temp_bin}(:, x_column));
     number_of_valid_rows = number_of_valid_rows + 1;
 end
 % meanBinCount = mean(bin_count); % Print mean number of elements in the bins, for debugging
@@ -116,21 +126,19 @@ bin_means = bin_means(1:number_of_valid_rows - 1); % Extract valid means. We inc
 % Generate the cloud's outline
 cloud_bounds(1, :) = bin_statistics(:, 1) + bin_statistics(:, 3); % mean + 95% CI
 cloud_bounds(2, :) = bin_statistics(:, 1) - bin_statistics(:, 3); % mean - 95% CI
-[x_patches, y_patches] = get_patches(cloud_bounds(1, :),cloud_bounds(2, :),bin_means);
+[x_patches, y_patches] = get_patches(cloud_bounds(1, :), cloud_bounds(2, :), bin_means);
 
-x_patches(x_patches<0) = 0.01; % Dyl Important! Negative stress or force makes no sense for most of our datasets
-y_patches(y_patches<0) = 0.01; % Dyl Important! Negative stress or force makes no sense for most of our datasets
 
 % Optionally subtract initial value
-if(p.Results.subtractInitial)
-    y_patches = y_patches - y_data_first_cell(p.Results.initialRow);
-    bin_statistics(:, 1) = bin_statistics(:, 1) - y_data_first_cell(p.Results.initialRow);
+if(p.Results.subtract_initial)
+    y_patches = y_patches - y_data_first_cell(p.Results.initial_row);
+    bin_statistics(:, 1) = bin_statistics(:, 1) - y_data_first_cell(p.Results.initial_row);
 end
 
 % Plot
-if (p.Results.plotClouds) % Optionally plot cloud
+if (p.Results.plot_clouds) % Optionally plot cloud
     % Plot Clouds
-    if p.Results.cloudsFirst
+    if p.Results.clouds_first
         cloud = patch(x_patches, p.Results.yConstant*(y_patches), p.Results.color, 'FaceAlpha', 0.35, 'edgeColor', 'none');
         line = plot(bin_means, p.Results.yConstant*(bin_statistics(:, 1)), '--', 'Color', p.Results.color, 'LineWidth', 2.0, 'DisplayName', 'Mean');
     else
@@ -139,9 +147,9 @@ if (p.Results.plotClouds) % Optionally plot cloud
     end
 
     % Hide the cloud color in legend, if we don't want to show it
-    if ~p.Results.showCloudInLegend
-        set(get(get(cloud,'Annotation'),'LegendInformation'),...
-            'IconDisplayStyle','off'); % Exclude cloud from legend
+    if ~p.Results.show_cloud_in_legend
+        set(get(get(cloud, 'Annotation'), 'LegendInformation'),...
+            'IconDisplayStyle', 'off'); % Exclude cloud from legend
     end
 else % Just plot mean
     line = plot(bin_means, p.Results.yConstant*(bin_statistics(:, 1)), '--', 'Color', p.Results.color, 'LineWidth', 2.0, 'DisplayName', 'Mean');
