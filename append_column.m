@@ -1,7 +1,7 @@
-function expanded_array = append_column(destination_array, dest_time_col, source_array, source_time_col, column_to_add)
+function expanded_array = append_columns(destination_array, dest_time_col, source_array, source_time_col, columns_to_add)
 % append_column Append a column from a source array onto a destination array that has more rows than the source. 
-%  expanded_array = append_column(destination_array, dest_time_col, source_array, source_time_col, column_to_add)
-%  Appends column_to_add from the source_array into the destination_array, such that the times in dest_time_col and source_time_col match
+%  expanded_array = append_column(destination_array, dest_time_col, source_array, source_time_col, columns_to_add)
+%  Appends columns_to_add from the source_array into the destination_array, such that the times in dest_time_col and source_time_col match
 %
 %  Example:
 %  sensor_data_expanded = append_column(sensor_data, time_column_arduino, instron, time_column, displacement_column);
@@ -29,7 +29,7 @@ for row = 1:num_rows
         current_row_source = next_row_source;
     end
 
-    expanded_array(row, added_col) = source_array(current_row_source, column_to_add);
+    expanded_array(row, added_col) = source_array(current_row_source, columns_to_add);
 end
 
 garbage = 1;

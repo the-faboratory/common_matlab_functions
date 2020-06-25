@@ -44,6 +44,8 @@ addOptional(p, 'show_cloud_in_legend', false, @islogical)
 addOptional(p, 'plot_clouds', true, @islogical)
 addOptional(p, 'plot_raw', false, @islogical)
 addOptional(p, 'raw_number', 1, @isnumeric)
+addOptional(p, 'specific_sd', false, @islogical)
+addOptional(p, 'specified_sd', 1, @isnumeric)
 
 
 default_color = false; % If color not specified, let MATLAB decide a default color
@@ -113,8 +115,12 @@ for temp_bin = 1 : number_of_bins_minus_one
     % If the bin has valid elements, then compute statistics
     bin_statistics(number_of_valid_rows, 1) = mean(binned_data{temp_bin}(:, y_column));
     bin_statistics(number_of_valid_rows, 2) = std(binned_data{temp_bin}(:, y_column));
-    t_statistic = tinv(p.Results.percent_to_right, bin_count(temp_bin)-1); % 95% CI t-statistic
-    %     t_statistic = 2.26; % 95% CI t-statistic % HARDCODED
+    t_statistic = tinv(p.Results.percent_to_right, bin_count(temp_bin)-1); % X% CI t-statistic. X = (1- 2*p.Results.percent_to_right)
+    if (p.Results.specific_sd)
+         t_statistic = p.Results.specified_sd; % 95% CI t-statistic % HARDCODED
+         % t_statistic = 2.26; % 95% CI t-statistic % HARDCODED
+    end
+
     bin_statistics(number_of_valid_rows, 3) = t_statistic*bin_statistics(number_of_valid_rows, 2);   % 95%CI
     bin_means(number_of_valid_rows) = mean(binned_data{temp_bin}(:, x_column));
     number_of_valid_rows = number_of_valid_rows + 1;
@@ -124,8 +130,8 @@ bin_means = bin_means(1:number_of_valid_rows - 1); % Extract valid means. We inc
 
 %% Plot Mechanical Response
 % Generate the cloud's outline
-cloud_bounds(1, :) = bin_statistics(:, 1) + bin_statistics(:, 3); % mean + 95% CI
-cloud_bounds(2, :) = bin_statistics(:, 1) - bin_statistics(:, 3); % mean - 95% CI
+cloud_bounds(1, :) = bin_statistics(:, 1) + bin_statistics(:, 3); % mean + X% CI
+cloud_bounds(2, :) = bin_statistics(:, 1) - bin_statistics(:, 3); % mean - X% CI
 [x_patches, y_patches] = get_patches(cloud_bounds(1, :), cloud_bounds(2, :), bin_means);
 
 

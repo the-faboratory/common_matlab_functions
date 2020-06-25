@@ -1,7 +1,6 @@
 function [ data_above_minimum ] = above_value( in_data, x_data_column, minimum_x_value, columns_to_zero, varargin )
 % above_value remove all data that is below a minimum value.
-%   [ data_above_minimum ] = above_value( in_data, x_data_column, minimum_x_value, varargin
-%   ). Zero-out all data that is below a minimum value
+%   [ data_above_minimum ] = above_value( in_data, x_data_column, minimum_x_value, varargin). Zero-out all data that is below a minimum value
 %
 %   Required inputs:
 %   in_data = array with the input data.
