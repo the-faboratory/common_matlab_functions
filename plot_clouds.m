@@ -96,7 +96,7 @@ b = 0; % which bin you're at
 for row = 1 : size(all_data_sorted, 1)
     temp_row = all_data_sorted(row, :);
     if b < length(bin_edges) % Bin the data from bins (1, numBins-1)
-        if temp_row(x_column) > bin_edges(b + 1) % If current xCol value is greater than next binEdge
+        if temp_row(x_column) > bin_edges(b + 1) % If current xCol value is greater than next binEdge % Important 
             k = 1; % Restart count
             b = b + 1;
         end
